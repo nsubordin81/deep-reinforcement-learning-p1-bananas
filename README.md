@@ -8,6 +8,8 @@ There is an action space consisting of only 4 possible actions, numbered 0 to 3.
 
 The task is episodic rather than continuous, so within an episode for an optimal policy the agent select the appropriate action in each time step to maximize the number of yellow bananas it collects based on its observations, while also minimizing the number of blue bananas it collects. 
 
+Specifically, the task will be considered 'solved' when the agent is able to maintain an average score of +13 over 100 consecutive episodes. 
+
 ## Instructions For Installing Dependencies Or Downloading Files necessary To Run My Project
 
 <TBD>
