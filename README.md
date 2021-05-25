@@ -41,7 +41,6 @@ a good way to test that you have been able to successfully install dependencies 
 `udacity_navigation_code.py`
 you should see the udacity Bananas environment fire up inside a new unity mlagent application window and an agent will randomly take actions for an episode.
 
-
 ## I Have Instructions On How To Run The Project, How To Train The Agent In Other Words
 
 <TBD>
