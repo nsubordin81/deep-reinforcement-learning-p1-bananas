@@ -11,6 +11,7 @@ def main():
 
     # reset the environment
     env_info = env.reset(train_mode=True)[brain_name]
+    print(f"environment info: {env_info}")
 
     # number of agents in the environment
     print('number of agents:', len(env_info.agents))
@@ -32,7 +33,7 @@ def main():
     print('States have length:', state_size)
 
     env_info = env.reset(train_mode=False)[brain_name] # reset the environment
-    state - env_info.vector_observations[0]            # get the current state
+    state = env_info.vector_observations[0]            # get the current state
     score = 0                                          # initilize the score
 
     # this code (this whole file is provided by Udactiy) 
