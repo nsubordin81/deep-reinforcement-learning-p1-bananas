@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from unityagents import UnityEnvironment
 
+from agent import determine_next_action
+
 # entry point for training
 def main():
     epsilon_start = 0.99
@@ -25,13 +27,13 @@ def main():
         # reset score to zero, new episode
         # loop through timesteps in current episode
         score = 0
+        experience_counter = 0
         while True:
-            # pick next action from action space. in this first iteration
-            # we still don't have a neural net telling what the best action is, so
-            # just pick a random one
-            action = np.random.randint(
-                action_size
-            )  # we will get this from the learning network
+            # pick next action from action space. this will be epsilon-greedy
+            action = determine_next_action(
+                brain, selection_method=epsilon_greedy
+            )  # make a selection with local nn
+
             # get the next state for that action
             brain_env_info = env.step(action)[brain_name]  # this is the actual step
             next_state = brain_env_info.vector_observations[0]  # getting s'
@@ -41,8 +43,12 @@ def main():
             # and you need one to have the fixed target params and the other
             # to have the moving weights that get updated.
             # TODO  full experience tuple needs to be saved in memory
-            # TODO need a way to sample from experience tuples
-            # TODO logic for knowing when to learn from experience
+            #    - need an immutable data structure replay buffer
+            #    - need something that adds to the replay buffer
+            #    - need a way to check what is in the replay buffer to see if we can sample
+            #    - higher level abstraction, need a way to learn dependent on the replay buffer
+            #       TODO need a way to sample from experience tuples
+            #       TODO logic for knowing when to learn from experience
 
             # TODO need epsilon-greedy offline policy action selection, get from net and then be epsilon greedy so we explore enough
             # TODO need to interpolate between the target network weights and the ones for the network that is learning
