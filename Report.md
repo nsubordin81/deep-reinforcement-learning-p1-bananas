@@ -13,14 +13,14 @@ on the Deep Q Learning whitepaper, which I go over in the 'Learning Algorithm Us
 
 ## Learning Algorithm Used
 
-#### High Level Pseudocode from deep q learning paper
+### High Level Pseudocode from deep q learning paper
 
-##### Initialization
+#### Initialization
 Initialize the replay buffer
 Initialize action-value function stand-in (torch nn) with random weights
 Initialize a target action-value function stand in (torch nn) with weights set to the moving nn
 
-##### Procedure
+#### Procedure
 - for all of these steps, do them for every episode in a list of epsiodes M long
 1. in the paper they get the first sequence and preprocessed sequence of 4 raster images, but for the version of this where you are getting raycast info just use intial state
 - for all of these steps, do them for every time step t in an episode
