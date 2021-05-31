@@ -12,4 +12,5 @@ grpcio==1.11.0
 pandas
 scipy
 ipykernel
+toolz==0.11.1
 unityagents==0.4.0
