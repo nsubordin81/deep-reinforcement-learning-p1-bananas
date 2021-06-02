@@ -1,11 +1,27 @@
 from dataclasses import dataclass
 
+""" Maps the environment information received into the next action to take"""
 
-def act(brain):
+
+def policy_function(unity_params):
+    # I know I'll need these in here, to decide how to act when on policy
+    epsilon_gen = anneal_epsilon()
+    epsilon = next(epsilon_gen)
     pass
 
 
-""" Epsilon Greedy funcs """
+""" Learning Method, Using Deep RL """
+
+
+def learn():
+    pass
+
+
+def update_target_weights(learning_network, target_network):
+    pass
+
+
+""" Epsilon Greedy Exploration """
 
 
 def epsilon_greedy(epsilon, action_values, action_size):

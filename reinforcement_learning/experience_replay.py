@@ -4,6 +4,7 @@ from collections import namedtuple
 
 import torch
 import numpy as np
+from train_deep_q_agent import device
 
 """ Experience Replay
 This will be a stateful, mutable data structure, because we know exactly the scope in which it
@@ -34,7 +35,7 @@ def extract_attribute_as_tensor(attribute, sample, np_type, device):
     )
 
 
-class experience_dataset:
+class ExperienceDataset:
     def __init__(self, action_size, buffer_size, batch_size, seed):
         """ right now this is looking pretty much like the ReplayBuffer used in the course
         but with changing some names to remind me more 
@@ -50,7 +51,7 @@ class experience_dataset:
             batch_size (int): size of each training batch
             seed (int): random seed
         """
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = device
         self.action_size = action_size
         self.pool = deque(maxlen=buffer_size)
         self.batch_size = batch_size
