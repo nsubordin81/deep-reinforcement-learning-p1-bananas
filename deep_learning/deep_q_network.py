@@ -1,0 +1,2 @@
+class QNN:
+    pass
