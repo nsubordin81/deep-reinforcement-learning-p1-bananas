@@ -2,6 +2,11 @@ import functools
 from collections import deque
 from functools import dataclass
 
+import numpy as np
+
+# this is the goal according to the assignment
+GOAL_SCORE = 13
+
 """ scorekeeper
 pre: expects the wrapped function to have scores_window deque, 
 scores list and an episode_index defined.
@@ -24,14 +29,21 @@ def scorekeeper(func):
         score_trackers.scores_window.append(score)
         score_trackers.scores.append(score)
         # reporting scores, requires taht the wrapped func has a parameter called episode_index
-        _report_score(kwargs["episode_index"], score_trackers.scores_window)
+        mean_score = np.mean(score_trackers.scores_window)
+        episode_number = kwargs["episode_index"]
+        _report_score(episode_number, mean_score)
+        # mean score 100 episodes
+        if np.mean(score_trackers.scores_window) > GOAL_SCORE:
+            print(
+                f"\nEnvironment Solved!! it took {episode_number-100} episodes and average score per episode was {mean_score} "
+            )
 
     return wrapper
 
 
-def _report_score(episode_index, scores_window):
+def _report_score(episode_index, mean_score):
     if episode_index % 10 == 0:
-        print(f"\rEpisode: {i}\tAverage Score: {np.mean(scores_window)}")
+        print(f"\rEpisode: {i}\tAverage Score: {mean_score}")
 
 
 @dataclass

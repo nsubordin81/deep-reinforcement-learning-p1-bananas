@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Deque, List
 
 import torch
+import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
 from unityagents import UnityEnvironment
@@ -19,7 +20,7 @@ STATE_SIZE = 37
 SEED = 0  # a way to seed the randomness for uniform selection so we can have repeatable results
 UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network
 GAMMA = 0.99  # discount factor
-LR = 5e-4  # learning rate
+LEARNING_RATE = 5e-4  # learning rate
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -30,8 +31,12 @@ experience_dataset = ExperienceDataset(
     ACTION_SIZE, BUFFER_SIZE, BATCH_SIZE, random.seed(SEED)
 )
 
+""" having these global to the module and passing them around because I don't have implicits. better
+way to do this in python without classes? Not sure so doing this for now """
 learning_network = QNN(state_size, action_size, seed).to(device)
 target_network = QNN(state_size, action_size, seed).to(device)
+
+optimizer = optim.Adam(learning_network.parameters(), lr=LEARNING_RATE)
 
 
 @dataclass
@@ -102,7 +107,9 @@ def play_episode_and_train(
         """ all the code in here could use some refactoring, would like to 
         find ways to make it less imperative, it is a collection of functions called in order
         rather than a series of functional compositions """
-        action = policy_function(unity_params, state)  # getting a
+        action = policy_function(
+            unity_params, learning_network, state, ACTION_SIZE
+        )  # getting a
         train_env = environment(n, unity_params, action)
         next_state = train_env.vector_observations[0]  # getting s'
         reward = train_env.rewards[0]  # getting r
@@ -112,7 +119,13 @@ def play_episode_and_train(
             state, action, reward, next_state, train_env.local_done[0]
         )
         if len(experience_dataset) >= BATCH_SIZE:
-            learn(experience_dataset.sample(), GAMMA)
+            learn(
+                learning_network,
+                target_network,
+                optimizer,
+                experience_dataset.sample(),
+                GAMMA,
+            )
 
         # updating target network
         if n % UPDATE_EVERY == 0:
