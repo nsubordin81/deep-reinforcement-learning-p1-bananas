@@ -1,2 +1,23 @@
-class QNN:
-    pass
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+class QNN(nn.Module):
+    def __init__(
+        self, state_size, action_size, seed, fc1_units=64, fc2_units=16
+    ) -> None:
+        """ the architecture for the policy model, inputs are parameterized, 
+        picked number of nodes corresponding (I hope) to something that will
+        divide well into decision boundaries for 4 actions"""
+        super(Net, self).__init__()
+        self.fc1 = nn.Linear(state_size, fc1_units)
+        self.fc2 = nn.Linear(fc1_units, fc2_units)
+        self.fc3 = nn.Linear(fc2_units, action_size)
+
+    def forward(self, state):
+        """ how a forward pass will fire through this network, the goal is to 
+        learn a policy mapping from the input state to the action to be taken """
+        x = F.relu(self.fc1(state))
+        x = F.relu(self.fc2(x))
+        return self.fc3(x)
+

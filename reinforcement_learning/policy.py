@@ -1,31 +1,66 @@
+import random
+from functools import reduce
 from dataclasses import dataclass
+
+import torch
+import numpy as np
+
+from train_deep_q_agent import device
 
 """ Maps the environment information received into the next action to take"""
 
 
-def policy_function(unity_params):
-    # I know I'll need these in here, to decide how to act when on policy
+def policy_function(unity_params, q_network, state, action_size):
+    # get the action from the
+    state = torch.from_numpy(state).float().unqueeze(0).to(device)
+    """ not using dropout now but we might in the future, 
+    so might as well turn regularization off for inference """
+    q_network.eval()
+    with torch.no_grad():
+        action_values = q_network(state)
+    q_network.train()
+
     epsilon_gen = anneal_epsilon()
     epsilon = next(epsilon_gen)
-    pass
+
+    greater_than_epsilon = lambda epsilon: random.random() > epsilon
+    max_action = lambda _: np.argmax(action_values.cpu().data.numpy())
+    random_action = lambda _: random.choice(np.arange(action_size))
+
+    return (greater_than_epsilon(epsilon) and max_action()) or random_action()
 
 
 """ Learning Method, Using Deep RL """
 
 
-def learn():
-    pass
+def learn(learning_network, target_network, optimizer, experience_batch, gamma):
+    states, actions, rewards, next_states, dones = experience_batch
+
+    # for the whole batch, get a' = Q(s', a, r, w)
+    target_greedy_action_values = (
+        target_network(next_states).detach().max(1)[0].unsqueeze(1)
+    )
+    # prepare the y approximation, current reward plus the discounted target action values
+    # this vector operation will zero out the action value for next state when we got the local_done signal,
+    # as per the suggestion in the whitepaper pseudocode and udacity example
+    y = rewards + (gamma * target_greedy_action_values * (1 - dones))
+
+    # getting the action values from the model that is learning
+    learning_action_value_estimates = learning_network(states).gather(1, actions)
+
+    # loss function, mean squared error
+    loss = F.mse_loss(learning_action_value_estimates, target_greedy_action_values)
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
 
 
 def update_target_weights(learning_network, target_network):
-    pass
-
-
-""" Epsilon Greedy Exploration """
-
-
-def epsilon_greedy(epsilon, action_values, action_size):
-    pass
+    for target_param, local_param in zip(
+        target_network.parameters(), learning_network.parameters()
+    ):
+        target_param.data.copy_(local_param.data)
 
 
 """ anneal_epsilon
