@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import torch
 import numpy as np
 
-from train_deep_q_agent import device
+from utils.shared import device
 
 """ Maps the environment information received into the next action to take"""
 

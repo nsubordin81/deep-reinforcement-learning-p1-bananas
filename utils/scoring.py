@@ -1,6 +1,6 @@
 import functools
 from collections import deque
-from functools import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -48,5 +48,5 @@ def _report_score(episode_index, mean_score):
 
 @dataclass
 class ScoreTrackers:
-    scores: list = []
+    scores: list = field(default_factory=list)
     scores_window: deque = deque(maxlen=100)
