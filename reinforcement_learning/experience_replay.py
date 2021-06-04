@@ -1,10 +1,10 @@
 import random
 from toolz import curry
-from collections import namedtuple
+from collections import namedtuple, deque
 
 import torch
 import numpy as np
-from train_deep_q_agent import device
+from utils.shared import device
 
 """ Experience Replay
 This will be a stateful, mutable data structure, because we know exactly the scope in which it

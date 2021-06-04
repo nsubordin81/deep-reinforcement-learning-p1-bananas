@@ -12,6 +12,8 @@ from utils.scoring import ScoreTrackers, scorekeeper
 from reinforcement_learning.policy import policy_function, learn, update_target_weights
 from reinforcement_learning.environment import setup_unity_env, environment
 from reinforcement_learning.experience_replay import ExperienceDataset
+from deep_learning.deep_q_network import QNN
+from utils.shared import device
 
 BUFFER_SIZE = int(1e5)  # how many experiences to hold in dataset at a time
 BATCH_SIZE = 64  # how many examples per mini batch
@@ -22,7 +24,6 @@ UPDATE_EVERY = 4  # how often to update the weights of the target network to mat
 GAMMA = 0.99  # discount factor
 LEARNING_RATE = 5e-4  # learning rate
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 """ Instantiating a dataset for experience replay with the constants from above.
     Not really happy to be putting this in the __main__ namespece, considering memoizing it
@@ -33,8 +34,8 @@ experience_dataset = ExperienceDataset(
 
 """ having these global to the module and passing them around because I don't have implicits. better
 way to do this in python without classes? Not sure so doing this for now """
-learning_network = QNN(state_size, action_size, seed).to(device)
-target_network = QNN(state_size, action_size, seed).to(device)
+learning_network = QNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
+target_network = QNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
 
 optimizer = optim.Adam(learning_network.parameters(), lr=LEARNING_RATE)
 

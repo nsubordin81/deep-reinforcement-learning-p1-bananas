@@ -42,6 +42,13 @@ then the file should be in your python/ directory. The requirements.txt though e
 `python udacity_navigation_code.py`
 you should see the udacity Bananas environment fire up inside a new unity mlagent application window and an agent will randomly take actions for an episode.
 
+8. The deep q code has more dependencies than that example, however, and it still won't run if, like me, you were on Windows 10 and don't have CUDA support for your nvidia GPU. If you don't have an nvidia gpu, you will need to change the requirements.txt to use the cpu only version of pytorch, so replace torch with `pytorch-cpu`, but if you have a GPU and want to use it you may need to install CUDA support if you haven't already. I used this method to get the cuda libraries (thank you to stack overflow post accepted answer here: https://stackoverflow.com/questions/49395819/import-torch-giving-error-from-torch-c-import-dll-load-failed-the-specif?noredirect=1&lq=1): (Again, this is just something you might run up against if you are running a similar Windows OS situation to what I have and you have an Nvidia GPU that doesn't have these DLLs already loaded)
+    1. download the tar file containing the DLLs, https://anaconda.org/anaconda/intel-openmp/files
+    2. extract them using the method of your choice,
+    3. copy the contants of Library/bin in the extracted folder into this path on your OS: `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin`
+    4. add that path to your Path Environment Variable. 
+`
+
 ## Instructions On How To Run The Project, How To Train The Agent In Other Words
 
 <TBD>
