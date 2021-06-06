@@ -32,11 +32,12 @@ def scorekeeper(func):
         mean_score = np.mean(score_trackers.scores_window)
         episode_number = kwargs["episode_index"]
         _report_score(episode_number, mean_score)
-        # mean score 100 episodes
+        learning_network = kwargs["learning_network"]
         if np.mean(score_trackers.scores_window) > GOAL_SCORE:
             print(
                 f"\nEnvironment Solved!! it took {episode_number-100} episodes and average score per episode was {mean_score} "
             )
+            torch.save(learning_network.state_dict(), "checkpoint.pth")
 
     return wrapper
 
