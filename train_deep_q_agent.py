@@ -5,7 +5,12 @@ from unityagents import UnityEnvironment
 import torch.optim as optim
 
 from utils.scoring import ScoreTrackers, scorekeeper
-from reinforcement_learning.policy import policy_function, learn, update_target_weights
+from reinforcement_learning.policy import (
+    policy_function,
+    learn,
+    soft_update_target_weights,
+    anneal_epsilon,
+)
 from reinforcement_learning.environment import setup_unity_env, environment
 from reinforcement_learning.experience_replay import ExperienceDataset
 from deep_learning.deep_q_network import BananaQNN
@@ -18,6 +23,7 @@ STATE_SIZE = 37
 SEED = 0.0  # a way to seed the randomness for uniform selection so we can have repeatable results
 UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network
 GAMMA = 0.99  # discount factor
+TAU = 1e-3  # starting with a very small tau, so it will be mostly  a full weight swap
 LEARNING_RATE = 5e-4  # learning rate
 
 NUM_EPISODES = 500
@@ -30,12 +36,6 @@ experience_dataset = ExperienceDataset(
     ACTION_SIZE, BUFFER_SIZE, BATCH_SIZE, random.seed(SEED)
 )
 
-""" having these global to the module and passing them around because I don't have implicits. better
-way to do this in python without classes? Not sure so doing this for now """
-learning_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
-target_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
-banana_optimizer = optim.Adam(learning_network.parameters(), lr=LEARNING_RATE)
-
 
 # entry point for training
 def main():
@@ -43,15 +43,23 @@ def main():
     # need to set up environment first
     score_trackers = ScoreTrackers()
     unity_params = setup_unity_env(file_name="./Banana_Windows_x86_64/Banana.exe")
+    epsilon_generator = anneal_epsilon()
+    learning_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
+    target_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
+    banana_optimizer = optim.Adam(learning_network.parameters(), lr=LEARNING_RATE)
     # currying all the global scope, so later I just change vals here
     train_banana_agent = train_agent(
         unity_params=unity_params,
         score_trackers=score_trackers,
         max_timesteps=MAX_TIMESTEPS,
+        epsilon_generator=epsilon_generator,
+        learning_network=learning_network,
+        target_network=target_network,
+        optimizer=banana_optimizer,
     )
 
     # side effecting for now, maybe there is a return value I'm not thinking of yet.
-    [train_banana_agent(episode_index=i) for i in range(NUM_EPISODES + 1)]
+    [train_banana_agent(episode_index=i) for i in range(1, NUM_EPISODES + 1)]
 
 
 """ train_agent
@@ -69,10 +77,32 @@ returns: the accumulated score for all timesteps in the episode
 
 @curry
 @scorekeeper  # episode_index, score_trackers used by scorekeeper
-def train_agent(unity_params, max_timesteps, episode_index, score_trackers):
+def train_agent(
+    unity_params,
+    max_timesteps,
+    epsilon_generator,
+    episode_index,
+    score_trackers,
+    learning_network,
+    target_network,
+    optimizer,
+):
     score = 0
-    for i in play_episode_and_train(max_timesteps, unity_params):
+    epsilon = next(epsilon_generator)
+    # print(f"starting a new episode, epsilon: {epsilon}")
+    # iterate over the play_episode_and_train generator
+    for i in play_episode_and_train(
+        epsilon,
+        max_timesteps,
+        unity_params,
+        learning_network,
+        target_network,
+        optimizer,
+    ):
+        # if i != 0.0:
+        #     print(f"reward for timestep is {i}")
         score += i
+    # print(f"overall reward is: {score}")
     return score
 
 
@@ -88,19 +118,19 @@ will break and return 0
 
 
 def play_episode_and_train(
-    max_timesteps, unity_params,
+    epsilon, max_timesteps, unity_params, learning_network, target_network, optimizer
 ):
     n = 0
     banana_environment = environment(unity_params.brain_name)
     state = banana_environment(n, unity_params.env.reset).vector_observations[
         0
     ]  # getting s
-    while n < MAX_TIMESTEPS:
+    while n < max_timesteps:
         """ all the code in here could use some refactoring, would like to 
         find ways to make it less imperative, it is a collection of functions called in order
         rather than a series of functional compositions """
         action = policy_function(
-            unity_params, learning_network, state, ACTION_SIZE
+            epsilon, learning_network, state, ACTION_SIZE,
         )  # getting a
 
         train_env = banana_environment(n, unity_params.env.step, action)  # step
@@ -111,18 +141,26 @@ def play_episode_and_train(
         experience_dataset.save(
             state, action, reward, next_state, train_env.local_done[0]
         )
-        if len(experience_dataset) >= BATCH_SIZE:
-            learn(
-                learning_network,
-                target_network,
-                banana_optimizer,
-                experience_dataset.uniform_random_sample(),
-                GAMMA,
-            )
 
         # updating target network
         if n % UPDATE_EVERY == 0:
-            update_target_weights(learning_network, target_network)
+            print("learning. . . ")
+            # had this outside so we could learn every time, but experience pool must need to
+            # gather more items, and I guess this way we are always changing the target when we learn
+            # might need soft update here also
+            if len(experience_dataset) >= BATCH_SIZE:
+                learn(
+                    learning_network,
+                    target_network,
+                    optimizer,
+                    experience_dataset.uniform_random_sample(),
+                    GAMMA,
+                )
+            soft_update_target_weights(
+                learning_network=learning_network,
+                target_network=target_network,
+                tau=TAU,
+            )
 
         state = next_state  # getting s for next iter
         yield reward  # return the reward for this episode
