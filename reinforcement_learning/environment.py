@@ -1,3 +1,19 @@
+from toolz import curry
+from dataclasses import dataclass
+from typing import Any
+
+from unityagents import UnityEnvironment
+
+
+@dataclass
+class UnityParams:
+    """ class for holding the mlagents specific unity environment parameters """
+
+    env: UnityEnvironment
+    brain_name: str
+    brain: Any
+
+
 """ setup_unity_env
 abstracting away steps that seem standard for setup unity environment.
 Probably not generic enough to be its own function right now, but it 
@@ -22,15 +38,11 @@ returns: the new environment state corresponding to the action taken
 """
 
 
-def environment(timestep, unity_params, action=None):
+@curry
+def environment(brain_name, timestep, step_func, action=None):
     # side effecting here for some defensive coding
-    assert (timestep != 0 and not action) or (
-        timestep == 0 and action
-    ), "Either there was a value passed for action at time step 0 or an action \
-    was missing at a later time step"
-
-    if timestep == 0 and not action:
-        return unity_params.env.reset(train_mode=True)[unity_params.brain_name]
+    if timestep == 0 and action is None:
+        return step_func(train_mode=True)[brain_name]
     else:
-        return unity_params.env.step(action)[unity_params.brain_name]
+        return step_func(action)[brain_name]
 

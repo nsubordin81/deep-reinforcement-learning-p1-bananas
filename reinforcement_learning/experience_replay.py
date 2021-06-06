@@ -25,14 +25,15 @@ experience_tuple = namedtuple(
 )
 
 
-def extract_attribute_as_tensor(attribute, sample, np_type, device):
-    return (
-        torch.from_numpy(
-            np.vstack([s[attribute] for s in sample if s is not None]).as_type(np_type)
-        )
-        .float()
-        .to(device)
-    )
+@curry
+def extract_attribute_as_tensor(attribute, sample, device, np_type=None):
+    # some hoop jumping here to get implicit casting to work
+    vertical_array = np.vstack(
+        [s._asdict()[attribute] for s in sample if s is not None]
+    ).astype(np_type)
+    if np_type:
+        vertical_array = vertical_array.astype(np_type)
+    return torch.from_numpy(vertical_array).float().to(device)
 
 
 class ExperienceDataset:
@@ -62,23 +63,18 @@ class ExperienceDataset:
         e = experience_tuple(state, action, reward, next_state, done)
         self.pool.append(e)
 
-    def save(self, experience_tuple):
-        """ save this experience into the dataset as tuples for easier numpy stuff later """
-        self.pool.append(experience_tuple)
-
     def uniform_random_sample(self):
         """ take a uniform random sample from the pool of experiences """
         experiences = random.sample(self.pool, k=self.batch_size)
 
         extract = extract_attribute_as_tensor(sample=experiences, device=self.device)
-        extract_float = extract(set_type=np.float)
-        extract_unsigned_int = extract(set_type=np.uint8)
+        extract_unsigned_int = extract(np_type=np.uint8)
 
-        states = extract_float("state")
-        actions = extract_float("action")
-        rewards = extract_float("rewards")
-        next_states = extract_float("next_state")
-        dones = extract_unsigned_int
+        states = extract("state")
+        actions = extract("action")
+        rewards = extract("reward")
+        next_states = extract("next_state")
+        dones = extract_unsigned_int("done")
 
         return (states, actions, rewards, next_states, dones)
 
