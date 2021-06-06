@@ -3,6 +3,7 @@ from functools import reduce
 from dataclasses import dataclass
 
 import torch
+import torch.nn.functional as F
 import numpy as np
 
 from utils.shared import device
@@ -12,7 +13,7 @@ from utils.shared import device
 
 def policy_function(unity_params, q_network, state, action_size):
     # get the action from the
-    state = torch.from_numpy(state).float().unqueeze(0).to(device)
+    state = torch.from_numpy(state).float().unsqueeze(0).to(device)
     """ not using dropout now but we might in the future, 
     so might as well turn regularization off for inference """
     q_network.eval()
@@ -24,8 +25,8 @@ def policy_function(unity_params, q_network, state, action_size):
     epsilon = next(epsilon_gen)
 
     greater_than_epsilon = lambda epsilon: random.random() > epsilon
-    max_action = lambda _: np.argmax(action_values.cpu().data.numpy())
-    random_action = lambda _: random.choice(np.arange(action_size))
+    max_action = lambda *args: np.argmax(action_values.cpu().data.numpy())
+    random_action = lambda *args: random.choice(np.arange(action_size))
 
     return (greater_than_epsilon(epsilon) and max_action()) or random_action()
 
@@ -36,20 +37,27 @@ def policy_function(unity_params, q_network, state, action_size):
 def learn(learning_network, target_network, optimizer, experience_batch, gamma):
     states, actions, rewards, next_states, dones = experience_batch
 
+    #     import pdb
+    #
+    #     pdb.set_trace()
+
     # for the whole batch, get a' = Q(s', a, r, w)
-    target_greedy_action_values = (
-        target_network(next_states).detach().max(1)[0].unsqueeze(1)
-    )
+    # being laborious for debugging internal typing but also to teach myself pytorch api
+    action_values = target_network(next_states)
+    removed_values = action_values.detach()
+    max_action_values = removed_values.max(1)[0]
+    reshaped_target_action_value_max = max_action_values.unsqueeze(1)
+
     # prepare the y approximation, current reward plus the discounted target action values
     # this vector operation will zero out the action value for next state when we got the local_done signal,
     # as per the suggestion in the whitepaper pseudocode and udacity example
-    y = rewards + (gamma * target_greedy_action_values * (1 - dones))
+    y = rewards + (gamma * reshaped_target_action_value_max * (1 - dones))
 
     # getting the action values from the model that is learning
-    learning_action_value_estimates = learning_network(states).gather(1, actions)
+    learning_action_value_estimates = learning_network(states).gather(1, actions.long())
 
     # loss function, mean squared error
-    loss = F.mse_loss(learning_action_value_estimates, target_greedy_action_values)
+    loss = F.mse_loss(learning_action_value_estimates, reshaped_target_action_value_max)
 
     optimizer.zero_grad()
     loss.backward()

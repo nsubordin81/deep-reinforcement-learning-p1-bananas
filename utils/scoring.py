@@ -43,7 +43,7 @@ def scorekeeper(func):
 
 def _report_score(episode_index, mean_score):
     if episode_index % 10 == 0:
-        print(f"\rEpisode: {i}\tAverage Score: {mean_score}")
+        print(f"\rEpisode: {episode_index}\tAverage Score: {mean_score}")
 
 
 @dataclass
