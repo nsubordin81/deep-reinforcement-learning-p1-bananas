@@ -21,7 +21,7 @@ BATCH_SIZE = 64  # how many examples per mini batch
 ACTION_SIZE = 4
 STATE_SIZE = 37
 SEED = 0.0  # a way to seed the randomness for uniform selection so we can have repeatable results
-UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network
+UPDATE_EVERY = 10  # how often to update the weights of the target network to match the active network
 GAMMA = 0.99  # discount factor
 TAU = 1e-3  # starting with a very small tau, so it will be mostly  a full weight swap
 LEARNING_RATE = 5e-4  # learning rate
@@ -144,7 +144,6 @@ def play_episode_and_train(
 
         # updating target network
         if n % UPDATE_EVERY == 0:
-            print("learning. . . ")
             # had this outside so we could learn every time, but experience pool must need to
             # gather more items, and I guess this way we are always changing the target when we learn
             # might need soft update here also
