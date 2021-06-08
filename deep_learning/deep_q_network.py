@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 class BananaQNN(nn.Module):
     def __init__(
-        self, state_size, action_size, seed, fc1_units=64, fc2_units=16
+        self, state_size, action_size, seed, fc1_units=64, fc2_units=64
     ) -> None:
         """ the architecture for the policy model, inputs are parameterized, 
         picked number of nodes corresponding (I hope) to something that will
