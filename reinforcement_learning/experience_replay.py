@@ -76,7 +76,7 @@ class ExperienceDataset:
         next_states = extract("next_state")
         dones = extract_unsigned_int("done")
         print(
-            "examples, state: {states[0]} action: {actions[0]} reward:{rewards[0]} next_states: {next_states[0]} done: {dones[0]}"
+            f"examples, state: {states[0]} action: {actions[0]} reward:{rewards[0]} next_states: {next_states[0]} done: {dones[0]}"
         )
         return (states, actions, rewards, next_states, dones)
 
