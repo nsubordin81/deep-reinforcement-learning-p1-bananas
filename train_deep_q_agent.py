@@ -20,9 +20,7 @@ BUFFER_SIZE = int(1e5)  # how many experiences to hold in dataset at a time
 BATCH_SIZE = 64  # how many examples per mini batch
 ACTION_SIZE = 4
 STATE_SIZE = 37
-SEED = random.seed(
-    0.0
-)  # a way to seed the randomness for uniform selection so we can have repeatable results
+SEED = 0.0  # a way to seed the randomness for uniform selection so we can have repeatable results
 UPDATE_EVERY = 10  # how often to update the weights of the target network to match the active network
 GAMMA = 0.99  # discount factor
 TAU = 1e-3  # starting with a very small tau, so it will be mostly  a full weight swap
@@ -34,7 +32,9 @@ MAX_TIMESTEPS = 1000
 """ Instantiating a dataset for experience replay with the constants from above.
     Not really happy to be putting this in the __main__ namespece, considering memoizing it
     and doing this within the function, but for now this is fine """
-experience_dataset = ExperienceDataset(ACTION_SIZE, BUFFER_SIZE, BATCH_SIZE, SEED)
+experience_dataset = ExperienceDataset(
+    ACTION_SIZE, BUFFER_SIZE, BATCH_SIZE, random.seed(SEED)
+)
 
 
 # entry point for training
