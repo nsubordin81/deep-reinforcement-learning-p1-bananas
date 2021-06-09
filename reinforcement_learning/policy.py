@@ -50,7 +50,7 @@ def learn(learning_network, target_network, optimizer, experience_batch, gamma):
     y = rewards + (gamma * reshaped_target_action_value_max * (1 - dones))
 
     # getting the action values from the model that is learning
-    learning_action_value_estimates = learning_network(states).gather(1, actions.long())
+    learning_action_value_estimates = learning_network(states).gather(1, actions)
 
     # loss function, mean squared error
     loss = F.mse_loss(learning_action_value_estimates, reshaped_target_action_value_max)
