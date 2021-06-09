@@ -135,11 +135,13 @@ def play_episode_and_train(
     optimizer,
     training_counter,
 ):
+    # Everything before the while loop starts is only executed once per episode, as this is a
+    # generator function
     n = 0
     banana_environment = environment(unity_params.brain_name)
     state = banana_environment(n, unity_params.env.reset).vector_observations[
         0
-    ]  # getting s
+    ]  # getting initial s
     while n < max_timesteps:
         """ all the code in here could use some refactoring, would like to 
         find ways to make it less imperative, it is a collection of functions called in order
@@ -151,8 +153,7 @@ def play_episode_and_train(
         train_env = banana_environment(n, unity_params.env.step, action)  # step
         next_state = train_env.vector_observations[0]  # getting s'
         reward = train_env.rewards[0]  # getting r
-        # experience dataset is global, passing it down through would feel better but the context would grow
-        # internal deque is mutable so we just side effect here
+        # global so I don't have to pass it, seeing the advantage of objects with all these function params
         experience_dataset.save(
             state, action, reward, next_state, train_env.local_done[0]
         )
@@ -163,7 +164,7 @@ def play_episode_and_train(
             # had this outside so we could learn every time, but experience pool must need to
             # gather more items, and I guess this way we are always changing the target when we learn
             # might need soft update here also
-            if len(experience_dataset) >= BATCH_SIZE:
+            if len(experience_dataset) > BATCH_SIZE:
                 learn(
                     learning_network,
                     target_network,
