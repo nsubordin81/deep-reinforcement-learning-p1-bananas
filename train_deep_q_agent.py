@@ -51,6 +51,7 @@ def main():
     learning_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
     target_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
     banana_optimizer = optim.Adam(learning_network.parameters(), lr=LEARNING_RATE)
+    training_counter = 0
     # currying all the global scope, so later I just change vals here
     train_banana_agent = train_agent(
         unity_params=unity_params,
@@ -60,6 +61,7 @@ def main():
         learning_network=learning_network,
         target_network=target_network,
         optimizer=banana_optimizer,
+        training_counter=training_counter,
     )
 
     # highest level iteration, the episode loop
@@ -91,6 +93,7 @@ def train_agent(
     learning_network,
     target_network,
     optimizer,
+    training_counter,
 ):
     score = 0
     epsilon = next(epsilon_generator)
@@ -103,6 +106,7 @@ def train_agent(
         learning_network,
         target_network,
         optimizer,
+        training_counter,
     ):
         # if i != 0.0:
         #     print(f"reward for timestep is {i}")
@@ -123,7 +127,13 @@ will break and return 0
 
 
 def play_episode_and_train(
-    epsilon, max_timesteps, unity_params, learning_network, target_network, optimizer
+    epsilon,
+    max_timesteps,
+    unity_params,
+    learning_network,
+    target_network,
+    optimizer,
+    training_counter,
 ):
     n = 0
     banana_environment = environment(unity_params.brain_name)
@@ -148,7 +158,8 @@ def play_episode_and_train(
         )
 
         # updating target network
-        if n % UPDATE_EVERY == 0:
+        training_counter = (training_counter + 1) % UPDATE_EVERY
+        if training_counter == 0:
             # had this outside so we could learn every time, but experience pool must need to
             # gather more items, and I guess this way we are always changing the target when we learn
             # might need soft update here also
@@ -160,11 +171,11 @@ def play_episode_and_train(
                     experience_dataset.uniform_random_sample(),
                     GAMMA,
                 )
-            soft_update_target_weights(
-                learning_network=learning_network,
-                target_network=target_network,
-                tau=TAU,
-            )
+                soft_update_target_weights(
+                    learning_network=learning_network,
+                    target_network=target_network,
+                    tau=TAU,
+                )
 
         state = next_state  # getting s for next iter
         yield reward  # return the reward for this episode
