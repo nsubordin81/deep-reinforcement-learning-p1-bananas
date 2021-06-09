@@ -76,11 +76,6 @@ class ExperienceDataset:
         next_states = extract("next_state")
         dones = extract_unsigned_int("done")
 
-        nonzero_rewards_idx = torch.nonzero(rewards)
-
-        if len(nonzero_rewards_idx) > 0:
-            print(f"occurrences of nonzero rewards {rewards[nonzero_rewards_idx]}")
-
         return (states, actions, rewards, next_states, dones)
 
     def __len__(self):

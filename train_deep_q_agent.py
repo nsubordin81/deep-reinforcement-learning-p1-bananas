@@ -36,13 +36,17 @@ experience_dataset = ExperienceDataset(
     ACTION_SIZE, BUFFER_SIZE, BATCH_SIZE, random.seed(SEED)
 )
 
+""" Script Entrypoint
+sets up all of the global context used in the agent's training, hopefully a one stop shop for
+most of the things one would want to tweak when tuning the algorithm """
 
-# entry point for training
+
 def main():
     # setting some initial values:
     # need to set up environment first
     score_trackers = ScoreTrackers()
     unity_params = setup_unity_env(file_name="./Banana_Windows_x86_64/Banana.exe")
+    # state and funcs to be used by policy
     epsilon_generator = anneal_epsilon()
     learning_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
     target_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
@@ -58,7 +62,7 @@ def main():
         optimizer=banana_optimizer,
     )
 
-    # side effecting for now, maybe there is a return value I'm not thinking of yet.
+    # highest level iteration, the episode loop
     [train_banana_agent(episode_index=i) for i in range(1, NUM_EPISODES + 1)]
 
 
@@ -70,7 +74,8 @@ action: iterates over the play_episode_and_train generator, accumulating scores 
 Parameters:
 unity_params -- a dataclass object with the unity mlagents objects necessary for training
 max_timesteps -- passing the total number of timesteps to keep it in context, TODO curry these first two?
-expisode_index -- 
+expisode_index --  the index of the episode we are on now, added for scorekeeper
+score_trackers -- the deque and array being used to keep the scores, added for scorekeeper
 returns: the accumulated score for all timesteps in the episode
 """
 
