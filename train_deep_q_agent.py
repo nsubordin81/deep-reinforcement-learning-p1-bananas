@@ -16,7 +16,7 @@ from reinforcement_learning.experience_replay import ExperienceDataset
 from deep_learning.deep_q_network import BananaQNN
 from utils.shared import device
 
-BUFFER_SIZE = int(1e5)  # how many experiences to hold in dataset at a time
+BUFFER_SIZE = int(2e5)  # how many experiences to hold in dataset at a time
 BATCH_SIZE = 64  # how many examples per mini batch
 ACTION_SIZE = 4
 STATE_SIZE = 37
@@ -26,7 +26,7 @@ GAMMA = 0.99  # discount factor
 TAU = 1e-3  # starting with a very small tau, so it will be mostly  a full weight swap
 LEARNING_RATE = 5e-4  # learning rate
 
-NUM_EPISODES = 2000
+NUM_EPISODES = 5000
 MAX_TIMESTEPS = 1000
 
 """ Instantiating a dataset for experience replay with the constants from above.
