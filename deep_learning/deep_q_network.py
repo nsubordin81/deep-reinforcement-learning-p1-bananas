@@ -13,11 +13,8 @@ class BananaQNN(nn.Module):
         super(BananaQNN, self).__init__()
         uniform = lambda tensor: nn.init.xavier_uniform(tensor)
         self.seed = torch.manual_seed(seed)
-        self.fc1 = nn.Linear(state_size, fc1_units)
         uniform(self.fc1.weight)
-        self.fc2 = nn.Linear(fc1_units, fc2_units)
         uniform(self.fc2.weight)
-        self.fc3 = nn.Linear(fc2_units, action_size)
         uniform(self.fc3.weight)
 
     def forward(self, state):

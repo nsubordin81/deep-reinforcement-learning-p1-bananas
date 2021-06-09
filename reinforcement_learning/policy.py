@@ -40,8 +40,11 @@ def learn(learning_network, target_network, optimizer, experience_batch, gamma):
     # for the whole batch, get a' = Q(s', a, r, w)
     # being laborious for debugging internal typing but also to teach myself pytorch api
     action_values = target_network(next_states)
+    # remove the feedforward results from the computational graph
     removed_values = action_values.detach()
+    # for all the values in shape[experiences][actions], get (values, indices) tuple from max of actions and get [0]
     max_action_values = removed_values.max(1)[0]
+    # take the whole thing and convert it into a (64,1) tensor output where every row is a 1d tensor of Q(S,A) maxes
     reshaped_target_action_value_max = max_action_values.unsqueeze(1)
 
     # prepare the y approximation, current reward plus the discounted target action values
