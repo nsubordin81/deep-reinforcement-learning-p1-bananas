@@ -26,7 +26,7 @@ GAMMA = 0.99  # discount factor
 TAU = 1e-3  # starting with a very small tau, so it will be mostly  a full weight swap
 LEARNING_RATE = 5e-4  # learning rate
 
-NUM_EPISODES = 500
+NUM_EPISODES = 2000
 MAX_TIMESTEPS = 1000
 
 """ Instantiating a dataset for experience replay with the constants from above.

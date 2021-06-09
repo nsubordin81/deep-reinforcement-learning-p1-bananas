@@ -1,5 +1,4 @@
 import random
-from functools import reduce
 from dataclasses import dataclass
 
 import torch
