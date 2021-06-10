@@ -17,13 +17,13 @@ from deep_learning.deep_q_network import BananaQNN
 from utils.shared import device
 
 BUFFER_SIZE = int(2e5)  # how many experiences to hold in dataset at a time
-BATCH_SIZE = 64  # how many examples per mini batch
+BATCH_SIZE = 128  # how many examples per mini batch
 ACTION_SIZE = 4
 STATE_SIZE = 37
 SEED = 0.0  # a way to seed the randomness for uniform selection so we can have repeatable results
-UPDATE_EVERY = 10  # how often to update the weights of the target network to match the active network
+UPDATE_EVERY = 5  # how often to update the weights of the target network to match the active network but also how often you learn
 GAMMA = 0.99  # discount factor
-TAU = 1e-3  # starting with a very small tau, so it will be mostly  a full weight swap
+TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight will be small
 LEARNING_RATE = 5e-4  # learning rate
 
 NUM_EPISODES = 5000
