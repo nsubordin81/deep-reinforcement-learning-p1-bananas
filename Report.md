@@ -49,7 +49,7 @@ However, What I learned from attempting this approach with this project was that
     
     I had correctly calculated the target and assigned it to a variable, but instead of using that in the loss function I had just passed in the target network s` action values directly as the target by mistake. It follows that this would make the network poor at optimizing because the action value of the target network at the s' state has no guarantee of being larger than the action value for the learning network at state s. So not only was this of course going to be a poor approximator of the true target compared with a term tha thad the reward and discount factored in, it also might not even be higher than the current value, so imagine trying to minimize a loss like that! 
     
-    Fixing this improved the performance markedly from the -.3-.3 range to at the best times almost averaging 1 banana an episode. But I still needed to go back and try the hyperparams
+    Fixing this improved the performance markedly from the -.3-.3 range to at the best times almost averaging 1 banana an episode. But I still needed to go back and try out some of the hyperparameter tuning again now that the network was better able to learn.
 
 ## Plot Of Rewards
 
