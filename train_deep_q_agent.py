@@ -24,7 +24,7 @@ SEED = 0.0  # a way to seed the randomness for uniform selection so we can have 
 UPDATE_EVERY = 10  # how often to update the weights of the target network to match the active network but also how often you learn
 GAMMA = 0.99  # discount factor
 TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight will be small
-LEARNING_RATE = 5e-4  # learning rate
+LEARNING_RATE = 3e-4  # learning rate
 
 NUM_EPISODES = 5000
 MAX_TIMESTEPS = 1000
