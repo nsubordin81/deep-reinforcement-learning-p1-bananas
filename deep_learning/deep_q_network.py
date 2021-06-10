@@ -11,11 +11,10 @@ class BananaQNN(nn.Module):
         picked number of nodes corresponding (I hope) to something that will
         divide well into decision boundaries for 4 actions"""
         super(BananaQNN, self).__init__()
-        uniform = lambda tensor: nn.init.xavier_uniform(tensor)
         self.seed = torch.manual_seed(seed)
-        uniform(self.fc1.weight)
-        uniform(self.fc2.weight)
-        uniform(self.fc3.weight)
+        self.fc1 = nn.Linear(state_size, fc1_units)
+        self.fc2 = nn.Linear(fc1_units, fc2_units)
+        self.fc3 = nn.Linear(fc2_units, action_size)
 
     def forward(self, state):
         """ how a forward pass will fire through this network, the goal is to 

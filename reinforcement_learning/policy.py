@@ -52,11 +52,20 @@ def learn(learning_network, target_network, optimizer, experience_batch, gamma):
     # as per the suggestion in the whitepaper pseudocode and udacity example
     y = rewards + (gamma * reshaped_target_action_value_max * (1 - dones))
 
-    # getting the action values from the model that is learning
-    learning_action_value_estimates = learning_network(states).gather(1, actions)
+    """ ok, really understand what is happening here. so first, we get our 
+     tensor of output from a forward pass, different float vals for each action for every 
+     experience in the batch 
+     then, we are gathering along the column dimension, and the index tensor is the 
+     full batch of actions. So, for (64, 4) action_values we have and (64, 1) actions
+     and the gather function just says, whatever the value just take the one from the 
+     column index that the forward pass chose earlier. This seems to make sense, we 
+     are using the same model then that we are now and it hasn't gone through 
+     backprop yet, so whether greedy or max the index should work.  """
+    curr_action_value_estimates = learning_network(states)
+    learning_action_value_estimates = curr_action_value_estimates.gather(1, actions)
 
     # loss function, mean squared error
-    loss = F.mse_loss(learning_action_value_estimates, reshaped_target_action_value_max)
+    loss = F.mse_loss(learning_action_value_estimates, y)
 
     optimizer.zero_grad()
     loss.backward()
