@@ -30,9 +30,9 @@ def extract_attribute_as_tensor(
     attribute, sample, device, np_type=None, tensor_type=None
 ):
     # some hoop jumping here to get implicit casting to work
-    vertical_array = np.vstack(
-        [s._asdict()[attribute] for s in sample if s is not None]
-    ).astype(np_type)
+    vertical_array = np.vstack([attribute(s) for s in sample if s is not None]).astype(
+        np_type
+    )
     tensor = tensor_type(torch.from_numpy(vertical_array))
     return tensor.to(device)
 
@@ -75,11 +75,11 @@ class ExperienceDataset:
         extract_long_tensor = extract(tensor_type=long_tensor)
         extract_unsigned_int_numpy_float_tensor = extract_float_tensor(np_type=np.uint8)
 
-        states = extract_float_tensor("state")
-        actions = extract_long_tensor("action")
-        rewards = extract_float_tensor("reward")
-        next_states = extract_float_tensor("next_state")
-        dones = extract_unsigned_int_numpy_float_tensor("done")
+        states = extract_float_tensor(lambda x: x.state)
+        actions = extract_long_tensor(lambda x: x.action)
+        rewards = extract_float_tensor(lambda x: x.reward)
+        next_states = extract_float_tensor(lambda x: x.next_state)
+        dones = extract_unsigned_int_numpy_float_tensor(lambda x: x.done)
 
         return (states, actions, rewards, next_states, dones)
 

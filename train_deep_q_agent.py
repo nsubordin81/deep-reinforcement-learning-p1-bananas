@@ -16,7 +16,7 @@ from reinforcement_learning.experience_replay import ExperienceDataset
 from deep_learning.deep_q_network import BananaQNN
 from utils.shared import device
 
-BUFFER_SIZE = int(1e6)  # how many experiences to hold in dataset at a time
+BUFFER_SIZE = int(1e8)  # how many experiences to hold in dataset at a time
 BATCH_SIZE = 128  # how many examples per mini batch
 ACTION_SIZE = 4
 STATE_SIZE = 37
