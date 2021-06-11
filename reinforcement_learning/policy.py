@@ -22,11 +22,9 @@ def policy_function(epsilon, q_network, state, action_size):
     greater_than_epsilon = lambda epsilon: random.random() > epsilon
     # have to cast the argmax values as numpy int32, otherwise unity mlagents code breaks environment.py line 322 looking for 'keys'
 
-    max_action = lambda *args: np.argmax(action_values.cpu().data.numpy()).astype(
-        np.int32
-    )
+    max_action = lambda *args: np.argmax(action_values.cpu().data.numpy())
 
-    random_action = lambda *args: random.choice(np.arange(action_size)).astype(np.int32)
+    random_action = lambda *args: random.choice(np.arange(action_size))
 
     return (greater_than_epsilon(epsilon) and max_action()) or random_action()
 

@@ -44,5 +44,5 @@ def environment(brain_name, timestep, step_func, action=None):
     if timestep == 0 and action is None:
         return step_func(train_mode=True)[brain_name]
     else:
-        return step_func(action)[brain_name]
+        return step_func(int(action))[brain_name]
 
