@@ -10,7 +10,6 @@ reinforcement_learning/__init__.py
 reinforcement_learning/environment.py
 reinforcement_learning/experience_replay.py
 reinforcement_learning/policy.py
-tests/__init__.py
 tests/test_policy.py
 utils/__init__.py
 utils/scoring.py

@@ -110,8 +110,5 @@ def anneal_epsilon(e_p=None):
     epsilon = e_p.epsilon_initial
     yield epsilon
     while True:
-        if epsilon > e_p.epsilon_final:
-            epsilon = epsilon * e_p.epsilon_decay_rate
-            yield epsilon
-        else:
-            yield e_p.epsilon_final
+        epsilon = epsilon * e_p.epsilon_decay_rate
+        yield max(epsilon, e_p.epsilon_final)
