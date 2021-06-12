@@ -3,10 +3,13 @@ from toolz import curry
 
 from unityagents import UnityEnvironment
 import torch.optim as optim
+import numpy as np
+import matplotlib.pyplot as plt
 
 from utils.scoring import ScoreTrackers, scorekeeper
 from reinforcement_learning.policy import (
-    policy_function,
+    apply_policy,
+    epsilon_greedy,
     learn,
     soft_update_target_weights,
     anneal_epsilon,
@@ -23,10 +26,10 @@ STATE_SIZE = 37
 SEED = 0.0  # a way to seed the randomness for uniform selection so we can have repeatable results
 UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network but also how often you learn
 GAMMA = 0.99  # discount factor
-TAU = 1e-4  # starting with a very small tau, so the proportion of learning network weight will be small
+TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight will be small
 LEARNING_RATE = 5e-4  # learning rate
 
-NUM_EPISODES = 5000
+NUM_EPISODES = 2000
 MAX_TIMESTEPS = 1000
 
 """ Instantiating a dataset for experience replay with the constants from above.
@@ -65,7 +68,7 @@ def main():
     )
 
     # highest level iteration, the episode loop
-    [train_banana_agent(episode_index=i) for i in range(1, NUM_EPISODES + 1)]
+    return [train_banana_agent(episode_index=i) for i in range(1, NUM_EPISODES + 1)]
 
 
 """ train_agent
@@ -97,21 +100,17 @@ def train_agent(
 ):
     score = 0
     epsilon = next(epsilon_generator)
-    # print(f"starting a new episode, epsilon: {epsilon}")
     # iterate over the play_episode_and_train generator
     for i in play_episode_and_train(
         epsilon,
         max_timesteps,
         unity_params,
-        learning_network,
-        target_network,
-        optimizer,
-        training_counter,
+        learning_network=learning_network,
+        target_network=target_network,
+        optimizer=optimizer,
+        training_counter=training_counter,
     ):
-        # if i != 0.0:
-        #     print(f"reward for timestep is {i}")
         score += i
-    # print(f"overall reward is: {score}")
     return score
 
 
@@ -138,19 +137,14 @@ def play_episode_and_train(
     # Everything before the while loop starts is only executed once per episode, as this is a
     # generator function
     n = 0
-    banana_environment = environment(unity_params.brain_name)
-    state = banana_environment(n, unity_params.env.reset).vector_observations[
-        0
-    ]  # getting initial s
+    b_environment = environment(unity_params.brain_name)
+    state = b_environment(n, unity_params.env.reset).vector_observations[0]
     while n < max_timesteps:
-        """ all the code in here could use some refactoring, would like to 
-        find ways to make it less imperative, it is a collection of functions called in order
-        rather than a series of functional compositions """
-        action = policy_function(
-            epsilon, learning_network, state, ACTION_SIZE,
+        action = apply_policy(
+            epsilon, learning_network, state, epsilon_greedy,
         )  # getting a
 
-        train_env = banana_environment(n, unity_params.env.step, action)  # step
+        train_env = b_environment(n, unity_params.env.step, action)  # step
         next_state = train_env.vector_observations[0]  # getting s'
         reward = train_env.rewards[0]  # getting r
         # global so I don't have to pass it, seeing the advantage of objects with all these function params
@@ -186,4 +180,10 @@ def play_episode_and_train(
 
 
 if __name__ == "__main__":
-    main()
+    scores = main()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.plot(np.arange(len(scores)), scores)
+    plt.ylabel("Score")
+    plt.xlabel("Episode #")
+    plt.show()

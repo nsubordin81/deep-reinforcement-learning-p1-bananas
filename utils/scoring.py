@@ -2,6 +2,7 @@ import functools
 from collections import deque
 from dataclasses import dataclass, field
 
+import torch
 import numpy as np
 
 # this is the goal according to the assignment
@@ -38,6 +39,7 @@ def scorekeeper(func):
                 f"\nEnvironment Solved!! it took {episode_number-100} episodes and average score per episode was {mean_score} "
             )
             torch.save(learning_network.state_dict(), "checkpoint.pth")
+        return score
 
     return wrapper
 
