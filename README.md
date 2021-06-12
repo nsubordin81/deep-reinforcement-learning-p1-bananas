@@ -47,11 +47,12 @@ you should see the udacity Bananas environment fire up inside a new unity mlagen
     3. copy the contants of Library/bin in the extracted folder into this path on your OS: `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin`
     4. add that path to your Path Environment Variable. 
 
-9. (Optional) If you want to do development on this repository and you want to make sure python can locate your modules, you may want to run the setup.py to install the project in interactive or edit mode. from the project root, you can do 
-`pip install -e .`
-and this will install the package so imports will be visible to other modules in the directory hierarchy, but it will also track updates yo make to source code.
+9. when you installed the requirements, you also installed the project to site-packages with pip, so you should be able to run the few unit tests I've written with `pytest .` in the root of the project. The tests are for the policy portion of the code, as that is where the bulk of the reinforcement learning logic belongs and most of the rest is either just standard pytorch or code to integrate with the unity env. If I go further with this and turn it into a framework, then I'll likely add tests and try to make the framework more agnostic to the source of environment. 
 
 ## Instructions On How To Run The Project, How To Train The Agent In Other Words
 
 ### Training the agent
-Once you've completed the steps in setup above, you can train the agent with `python train_deep_q_agent.py`. This will print out an experience log, every 10 episodes it will print the average score per episode which is just net banana collection both positive and negative across the 300 timesteps. If the agent reaches the goal of 13 bananas average over 100 episodes, then the weights of the learning network will automatically be saved into a pytorch checkpoint.
+Once you've completed the steps in setup above, you can train the agent with `python train_deep_q_agent.py`. This will print out an experience log, every 10 episodes it will print the average score per episode which is just net banana collection both positive and negative across the 300 timesteps. It should also display a plot of the scores in a separate window at the end of the training run assuming it is not interrupted by an error or keyboard interrupt. If the agent reaches the goal of 13 bananas average over 100 episodes, then the weights of the learning network will automatically be saved into a pytorch checkpoint.
+
+### Running the DQN agent doing inference from loaded pre-trainied weights and biases
+run `python run_deep_q_agent.py` from project root

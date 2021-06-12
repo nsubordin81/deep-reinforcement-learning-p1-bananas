@@ -10,7 +10,7 @@ from utils.shared import device
 """ Maps the environment information received into the next action to take"""
 
 
-def policy_function(epsilon, q_network, state, action_size):
+def apply_policy(epsilon, q_network, state, policy_func):
     state = torch.from_numpy(state).float().unsqueeze(0).to(device)
     """ not using dropout now but we might in the future, 
     so might as well turn regularization off for inference """
@@ -19,14 +19,7 @@ def policy_function(epsilon, q_network, state, action_size):
         action_values = q_network(state)
     q_network.train()
 
-    greater_than_epsilon = lambda epsilon: random.random() > epsilon
-    # have to cast the argmax values as numpy int32, otherwise unity mlagents code breaks environment.py line 322 looking for 'keys'
-
-    max_action = lambda *args: np.argmax(action_values.cpu().data.numpy())
-
-    random_action = lambda *args: random.choice(np.arange(action_size))
-
-    return (greater_than_epsilon(epsilon) and max_action()) or random_action()
+    return policy_func(epsilon, action_values)
 
 
 """ Learning Method, Using Deep RL """
@@ -89,6 +82,28 @@ def soft_update_target_weights(learning_network, target_network, tau=None):
         target_weight.data.copy_(
             tau * learning_weight.data + (1.0 - tau) * target_weight.data
         )
+
+
+""" epsilon greedy function
+uses an epsilon greedy strategy over the action values to determine the next action to take
+
+Params:
+epsilon -- the current value of epsilon, annealing is left to the calling function
+action_values -- pytorch tensor of action values
+
+Returns: 
+the correct action for the agent to take
+"""
+
+
+def epsilon_greedy(epsilon, action_values):
+    greater_than_epsilon = lambda epsilon: random.random() > epsilon
+    max_action = lambda *args: np.argmax(action_values.cpu().data.numpy())
+    random_action = lambda *args: random.choice(np.arange(action_values.size()[0]))
+    if greater_than_epsilon(epsilon):
+        return max_action()
+    else:
+        return random_action()
 
 
 """ anneal_epsilon
