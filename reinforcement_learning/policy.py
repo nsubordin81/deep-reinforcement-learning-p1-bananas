@@ -104,8 +104,9 @@ class EpsilonParams:
     epsilon_decay_rate: float = 0.995
 
 
-def anneal_epsilon():
-    e_p = EpsilonParams()
+def anneal_epsilon(e_p=None):
+    if e_p == None:
+        e_p = EpsilonParams()
     epsilon = e_p.epsilon_initial
     yield epsilon
     while True:

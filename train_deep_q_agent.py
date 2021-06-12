@@ -166,11 +166,11 @@ def play_episode_and_train(
             # might need soft update here also
             if len(experience_dataset) > BATCH_SIZE:
                 learn(
-                    learning_network,
-                    target_network,
-                    optimizer,
-                    experience_dataset.uniform_random_sample(),
-                    GAMMA,
+                    learning_network=learning_network,
+                    target_network=target_network,
+                    optimizer=optimizer,
+                    experience_batch=experience_dataset.uniform_random_sample(),
+                    gamma=GAMMA,
                 )
                 soft_update_target_weights(
                     learning_network=learning_network,
