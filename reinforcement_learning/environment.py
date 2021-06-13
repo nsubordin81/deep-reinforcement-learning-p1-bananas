@@ -39,10 +39,10 @@ returns: the new environment state corresponding to the action taken
 
 
 @curry
-def environment(brain_name, timestep, step_func, action=None):
+def environment(brain_name, timestep, step_func, action=None, training=True):
     # side effecting here for some defensive coding
     if timestep == 0 and action is None:
-        return step_func(train_mode=True)[brain_name]
+        return step_func(train_mode=training)[brain_name]
     else:
         return step_func(int(action))[brain_name]
 

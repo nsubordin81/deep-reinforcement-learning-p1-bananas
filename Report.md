@@ -19,6 +19,11 @@ updates at the time.
 
 I have more details from this section that I just felt like writing below. I figured since this is a graded project I would keep the requested information at the top of the report and then continue the other sections later 
 
+## Model Architecture
+
+Both the learning network and the target q network had the same architecture, dubbed the BananaQNN. 
+the BananaQNN is made up of an input layer for the 37 input states, two hidden layers each with 64 nodes, and an output layer that converts to the action space of 4. The hidden layers are each actvated with the non-linear rectified linear unit (ReLU) function, whereas the output layer isn't, we will just be picking the node output with highest activation as the chosen action.
+
 
 ## Plot Of Rewards
 
@@ -33,6 +38,8 @@ Here is a plot of the scores achieved by the agent that finally made it over the
 The environment was solved in 251 episodes with the agent having maintained an average score of 13.03
 
 I also saved the episode log to [episode_logs_successful_train.txt](episode_logs_successful_train.txt)
+
+saved model state dictionary for my most recent training run which also solved the environment can be found in ./model.pth
 
 Hyperparameters were set to the following:  
 BUFFER_SIZE = int(1e8)  # how many experiences to hold in dataset at a time  
@@ -51,7 +58,11 @@ MAX_TIMESTEPS = 1000
 
 ## Ideas For Future Work
 
-I supposed there are several targets I could shoot for in this space. The clear and obvious strategies would be to try and apply one of the 6 optimizations discussed in the lecutres, Double DQN, Dueling DQN, Prioritized Experience Replay (I don't know if it would help with this environment because there isn't necessarily a sparsity of experiences that could teach the agent important things), multi step bootstrap targets, distributional or noisy DQN. Not every one of these optimizations seems like it would help with this particular task, but it would be instructional for me to try them all on different tasks in the open AI gym or mlagents environments. I'm looking forward to learning more about actor critic and policy gradients, maybe they could improve performance further, or maybe this task can be fully optimized without them, worth a shot. 
+I supposed there are several targets I could shoot for in this space. The clear and obvious strategies would be to try and apply one of the 6 optimizations discussed in the lecutres, so I'll go over a few of these here: 
+ - Double DQN: for this I could leverage the fixed target network and randomly elect to get my action values from there some of the time instead of from the actively learning network. According to lecture, this would be a simlar effect of using a whole separate value function approximator, and having both of these networks at play would prevent my learning network from overemphasizing the action values that it has selected and been rewarded for early on, as they are likely to be noisy and unreliable, so it will hold out longer before adjusting the weights until the action values have converged more towards optimal values. 
+ - Dueling DQN - I could introduce a more complex model that follows the suggestions of this whitepaper and has a set of layers devoted to learning the state values and another learning the advantage, and then combine them for the output layer. This one will require more research to implement.
+ -  Prioritized Experience Replay (I don't know if it would help with this environment because there isn't necessarily a sparsity of experiences that could teach the agent important things). I could determine the value of each of the experiences using the Temporal Difference error term to identify surprising transitions where the state values change significantly and following the formula to stochastically boost how often these are sampled in a way that doesn't violate the assumption that I am sampling from the same approximate experience distribution that I would be in a uniform random case.
+ - other ideas not fleshed out from sources in the course and that I've sought out: multi step bootstrap targets, distributional or noisy DQN, and target normalization techniques. Not every one of these optimizations seems like it would help with this particular task, but it would be instructional for me to try them all on different tasks in the open AI gym or mlagents environments. I'm looking forward to learning more about actor critic and policy gradients, maybe they could improve performance further, or maybe this task can be fully optimized without them, worth a shot. 
 
 I could try to have the agent try to learn faster or have it try to get the most optimal score or both. I actually received some insight in letting my agent train well past the point of solving the environment, as its average score actually decreased for a time. This was well after the episilon would have settled to 0.01, so that would rule out the agent exploring too much, it seems like maybe the backpropagation of the actively learning network is just see sawing around the local minima that was discovered around episode 750. I'm using the Adam optimizer so momentum could be at play there, but also maybe because I made the experience buffer so large the agent has had a chance to see more examples from different random banana distributions and it had actually backed off from overfitting to an earlier set of experiences maybe and converged to its current function which performs well in every environment? I could try to experiment more and make sure I understand why the scores followed this pattern based on my choice of network architecture and hyperparamters.
 

@@ -6,7 +6,7 @@ import torch
 import numpy as np
 
 # this is the goal according to the assignment
-GOAL_SCORE = 13
+GOAL_SCORE = 13.5
 
 """ scorekeeper
 pre: expects the wrapped function to have scores_window deque, 
@@ -34,11 +34,11 @@ def scorekeeper(func):
         episode_number = kwargs["episode_index"]
         _report_score(episode_number, mean_score)
         learning_network = kwargs["learning_network"]
-        if np.mean(score_trackers.scores_window) > GOAL_SCORE:
+        if mean_score > GOAL_SCORE:
             print(
                 f"\nEnvironment Solved!! it took {episode_number-100} episodes and average score per episode was {mean_score} "
             )
-            torch.save(learning_network.state_dict(), "checkpoint.pth")
+            torch.save(learning_network.state_dict(), "model.pth")
         return score
 
     return wrapper
