@@ -13,29 +13,73 @@ on the Deep Q Learning whitepaper, which I go over in the 'Learning Algorithm Us
 
 ## Learning Algorithm Used
 
-I used an implementation of the original DeepQLearning algorithm. One modification I had was I opted for a soft update as well eventually
+I used an implementation of the original DeepQLearning algorithm as described in the "Human-level control through deep reinforcement learning" paper by Deep Mind. One modification I had was I opted for a soft update as well eventually
 as a way of tuning the correlationa between the target network and the actively learning network, because I wasn't seeing good performance with hard
 updates at the time. 
 
-### High Level Pseudocode from deep q learning paper
+I have more details from this section that I just felt like writing below. I figured since this is a graded project I would keep the requested information at the top of the report and then continue the other sections later 
 
-#### Initialization
+
+## Plot Of Rewards
+
+Here is a plot of the scores achieved by the agent that finally made it over the threshold. I let it train for 2000 episodes, so it was actually able to get up to more than 13 bananas. It is still running right now and starting to dip actually in average score, but at one point it was able to do 17 per episode.
+
+![Score Plot For Solved Environment](https://github.com/nsubordin81/deep-reinforcement-learning-p1-bananas/deepq_bananas_performance.png?raw=true)
+
+I also saved the episode log to ./episode_logs_successful_train.txt
+
+
+### Number Of Episodes to Solution
+
+The environment was solved in 251 episodes with the agent having maintained an average score of 13.03
+
+Hyperparameters were set to the following: 
+BUFFER_SIZE = int(1e8)  # how many experiences to hold in dataset at a time
+BATCH_SIZE = 128  # how many examples per mini batch
+UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network but also how often you learn, represents C in the paper as well as kind of being an analog to how many images they used per observation even though mine wasn't learning from pixels
+GAMMA = 0.99  # discount factor
+TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight interpolated will be small
+LEARNING_RATE = 5e-4  # learning rate
+EPSILON_INITIAL: float = 1.00
+EPSILON_FINAL: float = 0.01
+EPSILON_DECAY_RATE: float = 0.995
+NUM_EPISODES = 2000
+MAX_TIMESTEPS = 1000
+
+
+
+## Ideas For Future Work
+
+I supposed there are several targets I could shoot for in this space. The clear and obvious strategies would be to try and apply one of the 6 optimizations discussed in the lecutres, Double DQN, Dueling DQN, Prioritized Experience Replay (I don't know if it would help with this environment because there isn't necessarily a sparsity of experiences that could teach the agent important things), multi step bootstrap targets, distributional or noisy DQN. Not every one of these optimizations seems like it would help with this particular task, but it would be instructional for me to try them all on different tasks in the open AI gym or mlagents environments. I'm looking forward to learning more about actor critic and policy gradients, maybe they could improve performance further, or maybe this task can be fully optimized without them, worth a shot. 
+
+I could try to have the agent try to learn faster or have it try to get the most optimal score or both. I actually received some insight in letting my agent train well past the point of solving the environment, as its average score actually decreased for a time. This was well after the episilon would have settled to 0.01, so that would rule out the agent exploring too much, it seems like maybe the backpropagation of the actively learning network is just see sawing around the local minima that was discovered around episode 750. I'm using the Adam optimizer so momentum could be at play there, but also maybe because I made the experience buffer so large the agent has had a chance to see more examples from different random banana distributions and it had actually backed off from overfitting to an earlier set of experiences maybe and converged to its current function which performs well in every environment? I could try to experiment more and make sure I understand why the scores followed this pattern based on my choice of network architecture and hyperparamters.
+
+
+
+## High Level Pseudocode from deep q learning paper
+
+### Initialization
 Initialize the replay buffer
 Initialize action-value function stand-in (torch nn) with random weights
-Initialize a target action-value function stand in (torch nn) with weights set to the moving nn
+Initialize a target action-value function stand in (torch nn) with weights that will start fixed but then be swapped for moving nn
 
-#### Procedure
+### Procedure
 - for all of these steps, do them for every episode in a list of epsiodes M long
 1. in the paper they get the first sequence and preprocessed sequence of 4 raster images, but for the version of this where you are getting raycast info just use intial state
 - for all of these steps, do them for every time step t in an episode
 2. select an action in an epsilon greedy fashion, so it is epsilon chance it is random explore, otherwise greedy
 3. execute that action and get back the reward and the next state
 4. in the deep q version with images, you'd have to get the image and use that image to preprocess and get the next 4 image state tensor, but in this case you already have the next state fed to you by the environment
-5. add the state transition information in the memory buffer. You will uniformly sample from these instead of just learning from transitions as you are creating them. That helps dampen effects caused by the correlation you'd see between states that are only one or two time steps apart. The network is likely to pick up on the relationships between sequential steps and make updates that overemphasize the importance of these relationships and their role in maximizing discounted return. Also, sampling randomly from experience means an experience can be used multiple times to update the parameters and that means more data efficiency than using each experience only once. However, this is one area where optimization is possible because not all experiences have the same inherent value for learning to optimize
+5. add the state transition information in the memory buffer. You will uniformly sample from these instead of just learning from transitions as you are creating them. That helps dampen effects caused by the correlation you'd see between states that are only one or two time steps apart. The network is likely to pick up on the relationships between sequential steps and make updates that overemphasize the importance of these relationships and their role in maximizing discounted return. Also, sampling randomly from experience means an experience can be used multiple times to update the parameters and that means more data efficiency than using each experience only once. However, this is one area where optimization is possible because not all experiences have the same inherent value for learning to optimize, in the course lectures one of the optimizations discussed is prioritized experience replay in the paper by Schaul, Quan et. al.
 6. sample the minibatch transitions. In the deep Q udacity code they are careful to ensure that there are enough samples by this point that it makes sense to do a sample.
-7. set the reward for this sample equal to the reward you get from taking the action if you are on the very last step, otherwise set it to the reward plus the discounted action value of taking a follow up action with the target network
-8. do gradient descent with respect to the parameters using the loss function, in which y is represented by the target network's action value with more fixed parameters and the loss function you are finding is between the squared error between the y target and the action value function with the current network.  you are using the discounted reward calculated with the target network with fixed parameters for the y term, and this will help reduce the likelihood of oscillations you would get if you used the same network to determine y that you did to determine you action value. If you didn't do this, there'd be an effect where updating the action value (with adjusted weights) would likely also increase the reward, so the gradient descent is more likely to oscillate because it is chasing a moving target. separating updates more gives the optimization time to try an hit the established reward target before moving it, which makes for a more focused movement.
+7. set the reward for this sample equal to the reward you get from taking the action if you are on the very last step, otherwise set it to the reward plus the discounted action value of taking a follow up action with the target network (the one with fixed weights)
+8. do gradient descent with respect to the parameters using the loss function, in which y is represented by the target network's action value with more fixed parameters and the loss function you are finding is between the squared error between the y target and the action value function with the current network.  you are using the discounted reward calculated with the target network with fixed parameters for the y term, and this will help reduce the likelihood of oscillations you would get if you used the same network to determine y that you did to determine you action value because the target won't change every time step. 
+
+If you didn't do this, there'd be an effect where updating the action value (with adjusted weights) would likely also increase the reward, so the gradient descent is more likely to oscillate because it is chasing a moving target. separating updates more gives the optimization time to try an hit the established reward target before moving it, which makes for a more focused movement. 
+
 9. by the time you have reached C time steps where C is some hyperparameter used for how often you update the target network weights, do a soft update of the target network.
+
+My implementation follows a soft update and delayed learning approach the same as was used in the lunar lander Udacity/OpenAI example. By not learning every time step we allow more experiences to make it into the buffer to be randomly sampled, and by interpolating very slowly between the weights of the learning network and target network we probably further decrease the chances that we will have too much correlation between the computed target and network generated action values in the loss function.
 
 ### Notes about what I learned during implementation
 1. I also used this project as an opportunity to attempt a more functional approach. I like to apply a more functional paradigm informed approach to programming when I can because I like the simplicity and design flexibility afforded by referential transparency and function composition over class based object  oriented designs. 
@@ -51,11 +95,5 @@ However, What I learned from attempting this approach with this project was that
     
     Fixing this improved the performance markedly from the -.3-.3 range to at the best times almost averaging 1 banana an episode. But I still needed to go back and try out some of the hyperparameter tuning again now that the network was better able to learn.
 
-## Plot Of Rewards
-
-
-### Number Of Episodes to Solution
-
-
-## Ideas For Future Work
+    - Ultimately, I then tried several experiements with different hyperparameter changes, such as increased buffer size, different values for TAU both large and smaller, different learning rates, etc. I Made an effort to only tune one thing at a time to be able to tell what was impacting the performance, and if you look at my git commit history you will see that I tried to commit every time in order to be able to reproduce earlier runs and examine what worked and what didn't. However, it wasn't until I went through and unit tested some of the RL portions of my code for Q Learning, such as the epsilon annealing and most critically the offline learning policy for epsilon-greedy actions that I learned that I wasn't even allowing the agent to take the maximum value action suggested by the neural net, and therefore had made it next to impossible for the agent to learn. What I'd done was try some fancy short circuit boolean approach to replace an if statement, and because I misunderstood how python would evaluate it, whenver the agent would have taken the max valued action, I think I was returning either 0 or 1 rather than the actual action index. Once I'd addressed this issue, the agent was able to learn to get an average of over 17 within 1000 episodes, so the RL algorithm and deep NNs came through. 
 
