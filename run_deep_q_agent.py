@@ -3,9 +3,11 @@ import torch
 
 from reinforcement_learning.policy import apply_policy, epsilon_greedy
 from reinforcement_learning.environment import environment, setup_unity_env
+from deep_learning.deep_q_network import BananaQNN
+from utils.shared import device
 
 """ Run Deep Q Agent
-This script will load the learnable parameters from the file ./checkpoint.pth
+This script will load the learnable parameters from the file ./model.pth
 and demonstrate an agent taking actions using a network with those weights 
 and biases loaded on to it to navigate the unity environment
 """
@@ -18,7 +20,8 @@ def main():
     MAX_TIMESTEPS = 1000
     unity_params = setup_unity_env(file_name="./Banana_Windows_x86_64/Banana.exe")
 
-    trained_network = torch.load("checkpoint.pth")
+    trained_network = BananaQNN(STATE_SIZE, ACTION_SIZE, SEED).to(device)
+    trained_network.load_state_dict(torch.load("model.pth"))
     banana_counter = ([], [])
     tabulate_bananas = (
         lambda x: banana_counter[0].append(x) if x < 0 else banana_counter[1].append(x)
@@ -27,7 +30,7 @@ def main():
     for i in loop_env(unity_params, trained_network):
         tabulate_bananas(i)
     print(
-        f"Score For Epsiode Was {banana_counter[0] + banana_counter[1]}. Collected {abs(banana_counter[0])} Blue Bananas and {banana_counter[1]} Yellow Bananas"
+        f"Score For Epsiode Was {sum(banana_counter[0]) + sum(banana_counter[1])}. Collected {abs(sum(banana_counter[0]))} Blue Bananas and {sum(banana_counter[1])} Yellow Bananas"
     )
 
 
@@ -35,10 +38,12 @@ def main():
 # a function, might as well take advantage of the functional approach. It could live in the environment module.
 def loop_env(unity_params, trained_network):
     n = 0
-    b_environment = environment(unity_params.brain_name)
+    b_environment = environment(unity_params.brain_name, training=False)
     state = b_environment(n, unity_params.env.reset).vector_observations[0]
     while n < MAX_TIMESTEPS:
+        trained_network.eval()
         # epsilon is 0.0 so we are always greedy, TODO, maybe with currying can make this more explicitly online greedy
+        # also, this will keep putting the model in train mode, should do something about that.
         action = apply_policy(0.0, trained_network, state, epsilon_greedy,)  # getting a
 
         train_env = b_environment(n, unity_params.env.step, action)  # step

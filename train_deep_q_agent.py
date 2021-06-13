@@ -24,12 +24,12 @@ BATCH_SIZE = 128  # how many examples per mini batch
 ACTION_SIZE = 4
 STATE_SIZE = 37
 SEED = 0.0  # a way to seed the randomness for uniform selection so we can have repeatable results
-UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network but also how often you learn
+UPDATE_EVERY = 8  # how often to update the weights of the target network to match the active network but also how often you learn
 GAMMA = 0.99  # discount factor
 TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight will be small
 LEARNING_RATE = 5e-4  # learning rate
 
-NUM_EPISODES = 2000
+NUM_EPISODES = 1000
 MAX_TIMESTEPS = 1000
 
 """ Instantiating a dataset for experience replay with the constants from above.
