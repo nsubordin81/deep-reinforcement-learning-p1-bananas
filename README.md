@@ -2,7 +2,7 @@
 
 ## Attribution
 
-This project is based on a Udacity course, the Deep Reinforcement Learning Nanodegree, and my source code was bootstrapped off of the basis of the Lunar Lander exercise which contained a sample solution I went through before starting. There are sections that directly make use of concepts presented there. Additionally, Udacity used Unity MLAgents environments and I leveraged their example and the ml agents set up code for this Banana example.
+This project is based on a Udacity course, the Deep Reinforcement Learning Nanodegree, and my source code was bootstrapped off of the basis of the Lunar Lander exercise which contained a sample solution I went through before starting. There are sections that directly make use of concepts presented there. Additionally, Udacity used Unity MLAgents environments and I leveraged their example and the ml agents set up code for this Banana example. I also learned the concepts for this from the DeepMind paper "Human-level control through deep reinforcement learning" https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf
 
 ## Environment Details
 
