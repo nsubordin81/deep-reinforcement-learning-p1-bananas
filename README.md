@@ -1,5 +1,9 @@
 # Deep Reinforcement Learning Nanodegree Program Project One: Navigation
 
+## Attribution
+
+This project is based on a Udacity course, the Deep Reinforcement Learning Nanodegree, and my source code was bootstrapped off of the basis of the Lunar Lander exercise which contained a sample solution I went through before starting. There are sections that directly make use of concepts presented there. Additionally, Udacity used Unity MLAgents environments and I leveraged their example and the ml agents set up code for this Banana example.
+
 ## Environment Details
 
 The environment for this task consists of observations with  a state space vector of 37 dimensions which provides the agent with information such as their velocity as well was a ray trace that shoots out and helps them to detect and identify objects along their forward movement vector in 3d space. 
