@@ -24,14 +24,15 @@ I have more details from this section that I just felt like writing below. I fig
 
 Here is a plot of the scores achieved by the agent that finally made it over the threshold. I let it train for 2000 episodes, so it was actually able to get up to more than 13 bananas. It is still running right now and starting to dip actually in average score, but at one point it was able to do 17 per episode.
 
-![Score Plot For Solved Environment](https://github.com/nsubordin81/deep-reinforcement-learning-p1-bananas/deepq_bananas_performance.png?raw=true)
+![Score Plot For Solved Environment](deepq_bananas_performance.png?raw=true)
 
-I also saved the episode log to ./episode_logs_successful_train.txt
 
 
 ### Number Of Episodes to Solution
 
 The environment was solved in 251 episodes with the agent having maintained an average score of 13.03
+
+I also saved the episode log to [episode_logs_successful_train.txt](episode_logs_successful_train.txt)
 
 Hyperparameters were set to the following: 
 BUFFER_SIZE = int(1e8)  # how many experiences to hold in dataset at a time
