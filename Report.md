@@ -34,18 +34,18 @@ The environment was solved in 251 episodes with the agent having maintained an a
 
 I also saved the episode log to [episode_logs_successful_train.txt](episode_logs_successful_train.txt)
 
-Hyperparameters were set to the following: 
-BUFFER_SIZE = int(1e8)  # how many experiences to hold in dataset at a time
-BATCH_SIZE = 128  # how many examples per mini batch
-UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network but also how often you learn, represents C in the paper as well as kind of being an analog to how many images they used per observation even though mine wasn't learning from pixels
-GAMMA = 0.99  # discount factor
-TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight interpolated will be small
-LEARNING_RATE = 5e-4  # learning rate
-EPSILON_INITIAL: float = 1.00
-EPSILON_FINAL: float = 0.01
-EPSILON_DECAY_RATE: float = 0.995
-NUM_EPISODES = 2000
-MAX_TIMESTEPS = 1000
+Hyperparameters were set to the following:  
+BUFFER_SIZE = int(1e8)  # how many experiences to hold in dataset at a time  
+BATCH_SIZE = 128  # how many examples per mini batch  
+UPDATE_EVERY = 4  # how often to update the weights of the target network to match the active network but also how often you learn, represents C in the paper as well as kind of being an analog to how many images they used per observation even though mine wasn't learning from pixels  
+GAMMA = 0.99  # discount factor  
+TAU = 1e-3  # starting with a very small tau, so the proportion of learning network weight interpolated will be small  
+LEARNING_RATE = 5e-4  # learning rate  
+EPSILON_INITIAL: float = 1.00  
+EPSILON_FINAL: float = 0.01  
+EPSILON_DECAY_RATE: float = 0.995  
+NUM_EPISODES = 2000  
+MAX_TIMESTEPS = 1000  
 
 
 
