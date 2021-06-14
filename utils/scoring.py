@@ -36,7 +36,7 @@ def scorekeeper(func):
         learning_network = kwargs["learning_network"]
         if mean_score > GOAL_SCORE:
             print(
-                f"\nEnvironment Solved!! it took {episode_number-100} episodes and average score per episode was {mean_score} "
+                f"\nEnvironment Solved!! it took {episode_number} episodes and average score per episode was {mean_score} "
             )
             torch.save(learning_network.state_dict(), "model.pth")
         return score

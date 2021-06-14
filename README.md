@@ -35,6 +35,19 @@ and `cd deep-reinforcement-learning-p1-bananas.git`
 3. create a conda environment `conda create -n <name it something> python=3.6`
 `conda activate <whatever you chose to call it>`
 
+4. I checked the Udacity variant on the mlagents environment for my platform, Windows (64-bit) into this repository, however I may remove it due to its size and the amount of ASP.net code it makes github think is in my repo (jk). To reproduce the runtime environment that supports this project you will need to get a this tasks environment by downloading it from one of the following links according to your platform: 
+
+- Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux.zip)
+    - Mac OSX: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana.app.zip)
+    - Windows (32-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Windows_x86.zip)
+    - Windows (64-bit): [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Windows_x86_64.zip)
+
+(For Windows users) Check out [this link](https://support.microsoft.com/en-us/help/827218/how-to-determine-whether-a-computer-is-running-a-32-bit-version-or-64) you need help with determining if your computer is running a 32-bit version or 64-bit version of the Windows operating system.
+
+(For AWS) If you'd like to train the agent on AWS (and have not enabled a virtual screen), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux_NoVis.zip) to obtain the environment.
+
+once you have the correct version of the environment downloaded, this project expects it in the project root directory, so you will need to unzip it (should result in a directory like Banana_Windows_x86_64), and then move that directory from wherever you unzipped it to into deep-reinforcement-learning-p1-bananas/
+
 5. This next step is important. Since the project was first created, it seems Pypi has delisted the 0.4.0 version of torch from their index for pip. As a result, I am including steps here to install the wheel from conda directly which will be separate from your requirements.txt install step. This workedf for me on a Windows x64 architecture with an Nvidia GTX 1070 family graphics card so I used CUDA 9.2. You may want to do some research depending on your machine's specifications, pytorch has a guide on their page here https://pytorch.org/get-started/previous-versions/
 `conda install pytorch=0.4.0 cuda92 -c pytorch`
 
